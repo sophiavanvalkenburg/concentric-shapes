@@ -1,5 +1,5 @@
 var BACKGROUND_COLOR = 200;
-var EPSILON = 0.01;
+var EPSILON = 5;
 
 var points = [];
 
@@ -117,7 +117,14 @@ function mouseReleased(){
     points = [];
 }
 
+var lastX = 0;
+var lastY = 0;
 function mouseDragged() {
-    points.push(Point(mouseX, mouseY));
-    point(mouseX, mouseY);
+    if (!eq(lastX, mouseX) || !eq(lastY, mouseY)) {
+        console.log(mouseX + " " + mouseY);
+        points.push(Point(mouseX, mouseY));
+        lastX = mouseX;
+        lastY = mouseY;
+        point(mouseX, mouseY);
+    }
 }
