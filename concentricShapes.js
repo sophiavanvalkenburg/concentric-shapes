@@ -67,24 +67,17 @@ function intersectionPoint(line1, line2) {
     return !isNaN(x) && !isNaN(y) ? Point(x, y) : null;
 }
 
-function splitIntersections(line, lines) {
-    var newLines = null;
-    var line2 = null;
+function getIntersections(line, lines) {
+    var intersections = [];
     for (var i = 0; i < lines.length; i++) {
         line2 = lines[i];
         var p = intersectionPoint(line, line2);
-        if (!p) continue;
-        if ( pointOnLineSegment(p, line) && pointOnLineSegment(p, line2)) {
-            newLines = [
-                Line(line.a, p),
-                Line(line.b, p),
-                Line(line2.a, p),
-                Line(line2.b, p)
-            ];
-            break;
+        if (p && pointOnLineSegment(p, line) && pointOnLineSegment(p, line2)) {
+            intersections.push({point: p, lineA: line, lineB: line2});
+            point(p.x, p.y);
         }
     }
-    return newLines ? {add: newLines, remove: [line, line2]} : null;
+    return intersections;
 }
 
 function removeLine(line, lines) {
@@ -94,11 +87,19 @@ function removeLine(line, lines) {
 
 function createOutline(verts) {
     var lines = [];
-    for (var i = 0; i < verts.length - 1; i++) {
+    var i;
+    for (i = 0; i < verts.length - 1; i++) {
         var a = verts[i];
         var b = verts[i + 1];
         lines.push(Line(a, b));
     }
+    if (lines.length >= 2) lines.push(Line(lines[lines.length - 1].b, lines[0].a));
+    var intersections = [];
+    for (i = 0; i < lines.length - 4; i++) {
+        var res = getIntersections(lines[i], lines.slice(i + 2, lines.length));
+        if (res) intersections = intersections.concat(res);
+    }
+    console.log(intersections);
     return lines;
 }
 
@@ -112,16 +113,24 @@ function setup() {
 function mouseReleased(){
     clear();
     background(BACKGROUND_COLOR);
+    strokeWeight(6);
+    stroke(0);
+    for(var i=0; i<points.length; i++) point(points[i].x, points[i].y);
+    strokeWeight(5);
+    stroke(255, 0, 0);
     var outline = createOutline(points);
+    strokeWeight(2);
+    stroke(0);
     drawLines(outline);
     points = [];
+    strokeWeight(3);
+    stroke(0)
 }
 
 var lastX = 0;
 var lastY = 0;
 function mouseDragged() {
     if (!eq(lastX, mouseX) || !eq(lastY, mouseY)) {
-        console.log(mouseX + " " + mouseY);
         points.push(Point(mouseX, mouseY));
         lastX = mouseX;
         lastY = mouseY;
