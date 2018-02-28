@@ -18,28 +18,42 @@ function drawLines(lines) {
     endShape(CLOSE);
 }
 
-function rotate2D(p, origin, angle) {
-    var x = p.x - origin.x;
-    var y = p.y - origin.y;
-    var resX = x * cos(angle) - y * sin(angle);
-    var resY = y * cos(angle) + x * sin(angle);
-    return Point(resX + origin.x, resY + origin.y);
+function getNewPoint(line1, line2) {
+    // get unit vectors from adjacent lines with middle point as origin
+    var v1 = lineToUnitVec(line1.b, line1.a);
+    var v2 = lineToUnitVec(line2.a, line2.b)
+    // get the angle between the vectors
+    var angleDir = v2.cross(v1).z >= 0 ? 1 : -1;
+    var angle = angleDir * acos(v2.dot(v1))
+    // get the vector from which we start calculating the angle
+    var right = createVector(angleDir * 1, 0);
+    // get the angle between the second vector and the angle start vector
+    var v2AngleDir = v2.cross(right).z >= 0 ? 1 : -1;
+    var v2Angle = v2AngleDir * acos(v2.dot(right)); 
+    // place new point in between the original vectors
+    var newAngle = angle / 2 - v2Angle;
+    // add new point 
+    return Point(LAYER_PADDING * cos(newAngle) + line2.a.x, LAYER_PADDING * sin(newAngle) + line2.a.y)
 }
 
 function addLayer() {
     var layerLines = [];
     var line1 = outline[outline.length - 1];
     var line2;
+    stroke(255, 0, 0);
+    var lastP;
     for (var i = 0; i < outline.length; i++) {
         line2 = outline[i];
-        var v1 = lineToUnitVec(line1.b, line1.a);
-        var v2 = lineToUnitVec(line2.a, line2.b);
-        var angle = 2*PI - acos(v2.dot(v1));
-        //text(int(degrees(angle)), line2.a.x, line2.a.y);
-        var newP = rotate2D(Point(v1.x, v1.y), line2.a, angle / 2);
-        point(newP.x, newP.y);
+        var newP = getNewPoint(line1, line2);
+        if (lastP){
+            layerLines.push(Line(lastP, newP));
+        }
+        lastP = newP;
         line1 = line2;
     }
+    if (layerLines.length > 1) layerLines.push(Line(lastP, layerLines[0].a));
+    drawLines(layerLines);
+    outline = layerLines;
 }
 
 function setup() {
