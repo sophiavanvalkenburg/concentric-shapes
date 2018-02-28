@@ -5,7 +5,6 @@ var points = [];
 var outline = [];
 
 function drawLines(lines) {
-    beginShape();
     for (var i = 0; i < lines.length; i++){
         var p1 = lines[i].a;
         var p2 = lines[i].b;
@@ -15,7 +14,6 @@ function drawLines(lines) {
         strokeWeight(3);
         line(p1.x, p1.y, p2.x, p2.y);
     }
-    endShape(CLOSE);
 }
 
 function getNewPoint(line1, line2) {
