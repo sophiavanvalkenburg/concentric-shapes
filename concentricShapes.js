@@ -1,6 +1,7 @@
 var BACKGROUND_COLOR = 200;
 var LAYER_PADDING = 10;
 
+var allPoints = [];
 var points = [];
 var outline = [];
 
@@ -19,19 +20,30 @@ function drawLines(lines) {
 function getNewPoint(line1, line2) {
     // get unit vectors from adjacent lines with middle point as origin
     var v1 = lineToUnitVec(line1.b, line1.a);
-    var v2 = lineToUnitVec(line2.a, line2.b)
+    var v2 = lineToUnitVec(line2.a, line2.b);
     // get the angle between the vectors
     var angleDir = v2.cross(v1).z >= 0 ? 1 : -1;
-    var angle = angleDir * acos(v2.dot(v1))
+    var angle = angleDir * acos(constrain(v2.dot(v1), -1, 1));
     // get the vector from which we start calculating the angle
     var right = createVector(angleDir * 1, 0);
     // get the angle between the second vector and the angle start vector
     var v2AngleDir = v2.cross(right).z >= 0 ? 1 : -1;
-    var v2Angle = v2AngleDir * acos(v2.dot(right)); 
+    var v2Angle = v2AngleDir * acos(constrain(v2.dot(right), -1, 1)); 
     // place new point in between the original vectors
     var newAngle = angle / 2 - v2Angle;
     // add new point 
     return Point(LAYER_PADDING * cos(newAngle) + line2.a.x, LAYER_PADDING * sin(newAngle) + line2.a.y)
+}
+
+function findPointWithinDistance(excludeId, p, outline, distance) {
+    var v1 = createVector(p.x, p.y);
+    for (var i = 0; i < outline.length; i++) {
+        if (i === excludeId) continue
+        var line = outline[i]
+        var v2 = createVector(line.a.x, line.a.y);
+        if (abs(v1.dist(v2)) < distance) return line.a;
+    }
+    return null;
 }
 
 function addLayer() {
@@ -43,11 +55,13 @@ function addLayer() {
     for (var i = 0; i < outline.length; i++) {
         line2 = outline[i];
         var newP = getNewPoint(line1, line2);
+        line1 = line2;
+        if (findPointWithinDistance(i, newP, outline, LAYER_PADDING)) continue;
+        allPoints.push(newP);
         if (lastP){
             layerLines.push(Line(lastP, newP));
         }
         lastP = newP;
-        line1 = line2;
     }
     if (layerLines.length > 1) layerLines.push(Line(lastP, layerLines[0].a));
     drawLines(layerLines);
