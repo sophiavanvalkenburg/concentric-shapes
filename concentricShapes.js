@@ -1,5 +1,7 @@
 var BACKGROUND_COLOR = 200;
 var LAYER_PADDING = 10;
+var POINT_CREATION_THRESHOLD = 5;
+var MIDPOINT_CREATION_THRESHOLD = 20;
 var POINT_DISTANCE_THRESHOLD = 0.01;
 
 var allPoints = [];
@@ -48,11 +50,32 @@ function findPointWithinDistance(p, distance) {
     return null;
 }
 
+function getMidPoint(p1, p2) {
+    var v = createVector(p2.x - p1.x, p2.y - p1.y)
+    if (v.mag() <= MIDPOINT_CREATION_THRESHOLD) return null;
+    v.mult(0.5);
+    return Point(p1.x + v.x, p1.y + v.y);
+}
+
+function addMidPoints() {
+    var newOutline = [];
+    for (var i = 0; i < outline.length; i++) {
+        var line = outline[i];
+        var midpoint = getMidPoint(line.a, line.b);
+        if (midpoint) {
+            newOutline.push(Line(line.a, midpoint));
+            newOutline.push(Line(midpoint, line.b));
+        } else {
+            newOutline.push(line);
+        }
+    }
+    outline = newOutline;
+}
+
 function addLayer() {
     var layerLines = [];
     var line1 = outline[outline.length - 1];
     var line2;
-    stroke(255, 0, 0);
     var lastP;
     var newPoints = [];
     for (var i = 0; i < outline.length; i++) {
@@ -67,7 +90,6 @@ function addLayer() {
         lastP = newP;
     }
     if (layerLines.length > 1) layerLines.push(Line(lastP, layerLines[0].a));
-    drawLines(layerLines);
     allPoints = allPoints.concat(newPoints);
     outline = layerLines;
 }
@@ -88,14 +110,17 @@ function mouseReleased(){
         drawLines(outline);
         points = [];
     } else if (outline.length) {
+        addMidPoints();
         addLayer();
+        stroke(255, 0, 0);
+        drawLines(outline);
     } 
 }
 
 var lastX = 0;
 var lastY = 0;
 function mouseDragged() {
-    if (!eq(lastX, mouseX) || !eq(lastY, mouseY)) {
+    if (!eq(lastX, mouseX, POINT_CREATION_THRESHOLD) || !eq(lastY, mouseY, POINT_CREATION_THRESHOLD)) {
         points.push(Point(mouseX, mouseY));
         lastX = mouseX;
         lastY = mouseY;

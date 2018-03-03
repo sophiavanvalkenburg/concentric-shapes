@@ -1,5 +1,3 @@
-var EPSILON = 5;
-
 function Point(x, y) {
     return {x: x, y: y};
 }
@@ -9,17 +7,14 @@ function Line(p1,p2) {
 }
 
 function eq(a, b, eps) {
-    eps = typeof(eps) !== 'undefined' ? eps : EPSILON;
     return abs(a - b) < eps;
 }
 
 function lt(a, b, eps) {
-    eps = typeof(eps) !== 'undefined' ? eps : EPSILON; 
     return b - a > eps;
 }
 
 function gt(a, b, eps) {
-    eps = typeof(eps) !== 'undefined' ? eps : EPSILON; 
     return a - b > eps;
 }
 
