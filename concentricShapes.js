@@ -1,5 +1,6 @@
 var BACKGROUND_COLOR = 200;
 var LAYER_PADDING = 10;
+var POINT_DISTANCE_THRESHOLD = 0.01;
 
 var allPoints = [];
 var points = [];
@@ -35,13 +36,14 @@ function getNewPoint(line1, line2) {
     return Point(LAYER_PADDING * cos(newAngle) + line2.a.x, LAYER_PADDING * sin(newAngle) + line2.a.y)
 }
 
-function findPointWithinDistance(excludeId, p, outline, distance) {
+function findPointWithinDistance(p, distance) {
     var v1 = createVector(p.x, p.y);
-    for (var i = 0; i < outline.length; i++) {
-        if (i === excludeId) continue
-        var line = outline[i]
-        var v2 = createVector(line.a.x, line.a.y);
-        if (abs(v1.dist(v2)) < distance) return line.a;
+    for (var i = 0; i < allPoints.length; i++) {
+        var v2 = createVector(allPoints[i].x, allPoints[i].y);
+        var v1v2Distance = abs(v1.dist(v2));
+        if (lt(v1v2Distance, distance, POINT_DISTANCE_THRESHOLD)) {
+            return allPoints[i];
+        }
     }
     return null;
 }
@@ -52,12 +54,13 @@ function addLayer() {
     var line2;
     stroke(255, 0, 0);
     var lastP;
+    var newPoints = [];
     for (var i = 0; i < outline.length; i++) {
         line2 = outline[i];
         var newP = getNewPoint(line1, line2);
         line1 = line2;
-        if (findPointWithinDistance(i, newP, outline, LAYER_PADDING)) continue;
-        allPoints.push(newP);
+        if (findPointWithinDistance(newP, LAYER_PADDING)) continue;
+        newPoints.push(newP);
         if (lastP){
             layerLines.push(Line(lastP, newP));
         }
@@ -65,6 +68,7 @@ function addLayer() {
     }
     if (layerLines.length > 1) layerLines.push(Line(lastP, layerLines[0].a));
     drawLines(layerLines);
+    allPoints = allPoints.concat(newPoints);
     outline = layerLines;
 }
 
@@ -80,6 +84,7 @@ function mouseReleased(){
         clear();
         background(BACKGROUND_COLOR);
         outline = createOutline(points);
+        allPoints = points;
         drawLines(outline);
         points = [];
     } else if (outline.length) {

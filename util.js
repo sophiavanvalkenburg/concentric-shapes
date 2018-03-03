@@ -8,12 +8,23 @@ function Line(p1,p2) {
     return {a: p1, b: p2};
 }
 
-function eq(a, b) {
-    return abs(a - b) < EPSILON;
+function eq(a, b, eps) {
+    eps = typeof(eps) !== 'undefined' ? eps : EPSILON;
+    return abs(a - b) < eps;
 }
 
-function pointEq(p1, p2) {
-    return eq(p1.x, p2.x) && eq(p1.y, p2.y);
+function lt(a, b, eps) {
+    eps = typeof(eps) !== 'undefined' ? eps : EPSILON; 
+    return b - a > eps;
+}
+
+function gt(a, b, eps) {
+    eps = typeof(eps) !== 'undefined' ? eps : EPSILON; 
+    return a - b > eps;
+}
+
+function pointEq(p1, p2, eps) {
+    return eq(p1.x, p2.x, eps) && eq(p1.y, p2.y, eps);
 }
 
 function len(line) {
