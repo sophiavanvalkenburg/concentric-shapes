@@ -3,18 +3,22 @@ var LAYER_PADDING = 5;
 var POINT_CREATION_THRESHOLD = 5;
 var MIDPOINT_CREATION_THRESHOLD = 20;
 var POINT_DISTANCE_THRESHOLD = 0.01;
+var KEY_C = 67;
+var KEY_R = 82;
 
-var points = [];
-var outline = [];
+var concentricMode = false;
+var lastX = 0;
+var lastY = 0;
+
+var points = []; // list of lists
+var outline = []; // list of lists
 
 function drawLines(lines) {
     for (var i = 0; i < lines.length; i++){
         var p1 = lines[i].a;
         var p2 = lines[i].b;
-        strokeWeight(6);
         point(p1.x, p1.y);
         point(p2.x, p2.y);
-        strokeWeight(3);
         line(p1.x, p1.y, p2.x, p2.y);
     }
 }
@@ -43,7 +47,7 @@ function findPointWithinDistance(p, distance) {
         var v2 = createVector(points[i].x, points[i].y);
         var v1v2Distance = abs(v1.dist(v2));
         if (lt(v1v2Distance, distance, POINT_DISTANCE_THRESHOLD)) {
-            return allPoints[i];
+            return points[i];
         }
     }
     return null;
@@ -93,35 +97,57 @@ function addMidPoints() {
     outline = newOutline;
 }
 
-function setup() {
-    createCanvas(window.innerWidth, window.innerHeight);
+function resetCanvas(){
+    clear();
     background(BACKGROUND_COLOR);
     strokeWeight(3);
     stroke(0);
 }
 
+function setup() {
+    createCanvas(window.innerWidth, window.innerHeight);
+    resetCanvas();
+}
+
+function createOutlines() {
+    resetCanvas();
+    outline = createOutline(points);
+    drawLines(outline);
+}
+
 function mouseReleased(){
-    if (points.length) {
-        clear();
-        background(BACKGROUND_COLOR);
-        outline = createOutline(points);
-        drawLines(outline);
-    } else if (outline.length) {
+    if (concentricMode && outline.length) {
         addMidPoints();
         addLayer();
         stroke(255, 0, 0);
         drawLines(outline);
-    } 
+    }  
 }
 
-var lastX = 0;
-var lastY = 0;
+function refresh() {
+    concentricMode = false;
+    resetCanvas();
+    points = [];
+    outline = [];
+}
+
+function keyReleased() {
+    if (keyCode === KEY_C && !concentricMode) {
+        concentricMode = true;
+        createOutlines();
+    } else if (keyCode === KEY_R) {
+        refresh();
+    }
+}
+
 function mouseDragged() {
-    if (!eq(lastX, mouseX, POINT_CREATION_THRESHOLD) || !eq(lastY, mouseY, POINT_CREATION_THRESHOLD)) {
+    if (!concentricMode &&
+        (!eq(lastX, mouseX, POINT_CREATION_THRESHOLD) || 
+        !eq(lastY, mouseY, POINT_CREATION_THRESHOLD))
+        ) {
         points.push(Point(mouseX, mouseY));
         lastX = mouseX;
         lastY = mouseY;
-        strokeWeight(3);
         point(mouseX, mouseY);
     }
 }
