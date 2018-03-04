@@ -1,10 +1,9 @@
 var BACKGROUND_COLOR = 200;
-var LAYER_PADDING = 10;
+var LAYER_PADDING = 5;
 var POINT_CREATION_THRESHOLD = 5;
 var MIDPOINT_CREATION_THRESHOLD = 20;
 var POINT_DISTANCE_THRESHOLD = 0.01;
 
-var allPoints = [];
 var points = [];
 var outline = [];
 
@@ -40,8 +39,8 @@ function getNewPoint(line1, line2) {
 
 function findPointWithinDistance(p, distance) {
     var v1 = createVector(p.x, p.y);
-    for (var i = 0; i < allPoints.length; i++) {
-        var v2 = createVector(allPoints[i].x, allPoints[i].y);
+    for (var i = 0; i < points.length; i++) {
+        var v2 = createVector(points[i].x, points[i].y);
         var v1v2Distance = abs(v1.dist(v2));
         if (lt(v1v2Distance, distance, POINT_DISTANCE_THRESHOLD)) {
             return allPoints[i];
@@ -90,7 +89,7 @@ function addLayer() {
         lastP = newP;
     }
     if (layerLines.length > 1) layerLines.push(Line(lastP, layerLines[0].a));
-    allPoints = allPoints.concat(newPoints);
+    points = points.concat(newPoints);
     outline = layerLines;
 }
 
@@ -106,9 +105,7 @@ function mouseReleased(){
         clear();
         background(BACKGROUND_COLOR);
         outline = createOutline(points);
-        allPoints = points;
         drawLines(outline);
-        points = [];
     } else if (outline.length) {
         addMidPoints();
         addLayer();
