@@ -49,28 +49,6 @@ function findPointWithinDistance(p, distance) {
     return null;
 }
 
-function getMidPoint(p1, p2) {
-    var v = createVector(p2.x - p1.x, p2.y - p1.y)
-    if (v.mag() <= MIDPOINT_CREATION_THRESHOLD) return null;
-    v.mult(0.5);
-    return Point(p1.x + v.x, p1.y + v.y);
-}
-
-function addMidPoints() {
-    var newOutline = [];
-    for (var i = 0; i < outline.length; i++) {
-        var line = outline[i];
-        var midpoint = getMidPoint(line.a, line.b);
-        if (midpoint) {
-            newOutline.push(Line(line.a, midpoint));
-            newOutline.push(Line(midpoint, line.b));
-        } else {
-            newOutline.push(line);
-        }
-    }
-    outline = newOutline;
-}
-
 function addLayer() {
     var layerLines = [];
     var line1 = outline[outline.length - 1];
@@ -91,6 +69,28 @@ function addLayer() {
     if (layerLines.length > 1) layerLines.push(Line(lastP, layerLines[0].a));
     points = points.concat(newPoints);
     outline = layerLines;
+}
+
+function getMidPoint(p1, p2) {
+    var v = createVector(p2.x - p1.x, p2.y - p1.y)
+    if (v.mag() <= MIDPOINT_CREATION_THRESHOLD) return null;
+    v.mult(0.5);
+    return Point(p1.x + v.x, p1.y + v.y);
+}
+
+function addMidPoints() {
+    var newOutline = [];
+    for (var i = 0; i < outline.length; i++) {
+        var line = outline[i];
+        var midpoint = getMidPoint(line.a, line.b);
+        if (midpoint) {
+            newOutline.push(Line(line.a, midpoint));
+            newOutline.push(Line(midpoint, line.b));
+        } else {
+            newOutline.push(line);
+        }
+    }
+    outline = newOutline;
 }
 
 function setup() {
