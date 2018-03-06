@@ -1,5 +1,5 @@
 
-<img src="https://www.github.com/sophiavanvalkenburg/concentric-shapes/raw/master/test01.png" width="600" />
+<img src="https://www.github.com/sophiavanvalkenburg/concentric-shapes/raw/master/test01.png" height="250" /> <img src="https://www.github.com/sophiavanvalkenburg/concentric-shapes/raw/master/test02.png" height="250" />
 
 ## To-Do
 * Split a single graph into multiple graphs if lines intersect
@@ -15,4 +15,4 @@
 * Add N layers button
 * Export to image
 
-<img src="https://www.github.com/sophiavanvalkenburg/concentric-shapes/raw/master/test02.png" width="200" />
+
