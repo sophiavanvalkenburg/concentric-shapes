@@ -10,16 +10,24 @@ var concentricMode = false;
 var lastX = 0;
 var lastY = 0;
 
-var points = []; // list of lists
-var outline = []; // list of lists
+//var allIntersections = [];
+var allPoints = [];
+//var allLines = [];
+var points = [[]]; // list of lists
+var outlines = []; // list of lists
 
 function drawLines(lines) {
     for (var i = 0; i < lines.length; i++){
         var p1 = lines[i].a;
         var p2 = lines[i].b;
-        point(p1.x, p1.y);
-        point(p2.x, p2.y);
+        //stroke(255, 0, 0);
+        //strokeWeight(3);
         line(p1.x, p1.y, p2.x, p2.y);
+        //strokeWeight(6);
+        //stroke(0);
+        //point(p1.x, p1.y);
+        //point(p2.x, p2.y);
+
     }
 }
 
@@ -66,7 +74,11 @@ function addLayer(outline, pInd) {
         if (findPointWithinDistance(newP, LAYER_PADDING)) continue;
         newPoints.push(newP);
         if (lastP){
-            layerLines.push(Line(lastP, newP));
+            var newLine = Line(lastP, newP);
+            //var intersections = getIntersections(newLine, allLines);
+            //if (intersections.length > 0) console.log(intersections);
+            //allIntersections = allIntersections.concat(intersections);
+            layerLines.push(newLine);
         }
         lastP = newP;
     }
@@ -121,11 +133,23 @@ function createOutlines() {
 
 function addLayers() {
     stroke(255, 0, 0);
-    for (var i = 0; i < outlines.length; i++) {
+    var i;
+    for (i = 0; i < outlines.length; i++) {
         var outline = addMidPoints(outlines[i]);
         outlines[i] = addLayer(outline, i);
+        //allLines = allLines.concat(outlines[i]);
+    }
+    for (i = 0; i < outlines.length; i++) {
         drawLines(outlines[i]);
     }
+    /*
+    for (i = 0; i < allIntersections.length; i++) {
+        stroke(0, 0, 255);
+        point(allIntersections[i].point.x, allIntersections[i].point.y );
+    }
+    allIntersections.length = 0;
+    */
+
 }
 
 function mouseReleased(){
