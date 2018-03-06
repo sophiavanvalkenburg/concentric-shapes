@@ -1,3 +1,6 @@
+
+<img src="https://www.github.com/sophiavanvalkenburg/concentric-shapes/raw/master/test01.png" width="600" />
+
 ## To-Do
 * Split a single graph into multiple graphs if lines intersect
 * Combine multiple graphs into a single graph if lines intersect
@@ -11,3 +14,5 @@
 * Add images for tracing
 * Add N layers button
 * Export to image
+
+<img src="https://www.github.com/sophiavanvalkenburg/concentric-shapes/raw/master/test02.png" width="200" />
